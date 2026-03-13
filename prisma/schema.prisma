@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── USERS ───────────────────────────────────────────────
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(STUDENT)
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  enrollments  Enrollment[]
+  payments     Payment[]
+  certificates Certificate[]
+
+  @@map("users")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+// ─── COURSES ─────────────────────────────────────────────
+model Course {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String
+  level       Level    @default(BEGINNER)
+  price       Float
+  origPrice   Float?
+  currency    String   @default("KES")
+  duration    String   @default("")
+  iconEmoji   String   @default("📊")
+  rating      Float    @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons      Lesson[]
+  enrollments  Enrollment[]
+  payments     Payment[]
+  certificates Certificate[]
+
+  @@map("courses")
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// ─── LESSONS ─────────────────────────────────────────────
+model Lesson {
+  id       String  @id @default(uuid())
+  title    String
+  content  String?
+  videoUrl String?
+  duration Int     @default(0)
+  order    Int     @default(0)
+  isFree   Boolean @default(false)
+  courseId String
+  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  progress LessonProgress[]
+
+  @@map("lessons")
+}
+
+// ─── ENROLLMENTS ─────────────────────────────────────────
+model Enrollment {
+  id          String           @id @default(uuid())
+  userId      String
+  courseId    String
+  status      EnrollmentStatus @default(ACTIVE)
+  completedAt DateTime?
+  enrolledAt  DateTime         @default(now())
+
+  user     User             @relation(fields: [userId], references: [id])
+  course   Course           @relation(fields: [courseId], references: [id])
+  progress LessonProgress[]
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+}
+
+// ─── LESSON PROGRESS ─────────────────────────────────────
+model LessonProgress {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  lessonId     String
+  completedAt  DateTime   @default(now())
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson     Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@map("lesson_progress")
+}
+
+// ─── PAYMENTS ────────────────────────────────────────────
+model Payment {
+  id              String        @id @default(uuid())
+  userId          String
+  courseId        String
+  amount          Float
+  currency        String        @default("KES")
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  stripeSessionId String?
+  mpesaCheckoutId String?
+  mpesaRef        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  STRIPE
+  MPESA
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// ─── CERTIFICATES ────────────────────────────────────────
+model Certificate {
+  id            String   @id @default(uuid())
+  userId        String
+  courseId      String
+  certificateNo String   @unique
+  issuedAt      DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("certificates")
+}
+
+// ─── CONTACT SUBMISSIONS ─────────────────────────────────
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("contact_submissions")
+}
+
+// ─── NEWSLETTER SUBSCRIBERS ──────────────────────────────
+model NewsletterSubscriber {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String?
+  isActive     Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+
+  @@map("newsletter_subscribers")
+}
