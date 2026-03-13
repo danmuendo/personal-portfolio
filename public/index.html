@@ -41,6 +41,27 @@ body { background: var(--navy); color: var(--white); font-family: var(--font-bod
 ::-webkit-scrollbar-track { background: var(--navy); }
 ::-webkit-scrollbar-thumb { background: var(--teal2); border-radius: 2px; }
 
+/* Password Toggle */
+.password-wrapper { position: relative; }
+.password-wrapper input { padding-right: 2.5rem; }
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1.1rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toggle-password:hover { color: var(--teal); }
+
+
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 5%; height: 72px; display: flex; align-items: center; justify-content: space-between; background: rgba(5,13,26,.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); transition: box-shadow .3s; }
 nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,.4); }
 .nav-logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -.02em; }
@@ -906,7 +927,10 @@ footer { background: var(--navy2); border-top: 1px solid var(--border); padding:
       <div style="margin-bottom:1rem;"><label style="font-size:.8rem;color:var(--white2);display:block;margin-bottom:.3rem;">Email</label>
         <input id="loginEmail" type="email" placeholder="you@email.com" style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;color:var(--white);font-size:.9rem;outline:none;"></div>
       <div style="margin-bottom:1.5rem;"><label style="font-size:.8rem;color:var(--white2);display:block;margin-bottom:.3rem;">Password</label>
-        <input id="loginPass" type="password" placeholder="••••••••" style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;color:var(--white);font-size:.9rem;outline:none;"></div>
+        <div class="password-wrapper">
+          <input id="loginPass" type="password" placeholder="••••••••" style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;color:var(--white);font-size:.9rem;outline:none;">
+          <button type="button" class="toggle-password" onclick="togglePassword('loginPass', this)">👁️</button>
+        </div></div>
       <div id="loginError" style="color:#ff6b35;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
       <button id="loginBtn" onclick="doLogin()" style="width:100%;background:var(--teal);color:var(--navy);border:none;padding:.9rem;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:.95rem;cursor:pointer;">Log In →</button>
       <p style="text-align:center;margin-top:1rem;font-size:.8rem;color:var(--muted);">No account? <a href="#" onclick="switchTab('register');return false;" style="color:var(--teal);">Create one free</a></p>
@@ -919,7 +943,10 @@ footer { background: var(--navy2); border-top: 1px solid var(--border); padding:
       <div style="margin-bottom:1rem;"><label style="font-size:.8rem;color:var(--white2);display:block;margin-bottom:.3rem;">Email</label>
         <input id="regEmail" type="email" placeholder="you@email.com" style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;color:var(--white);font-size:.9rem;outline:none;"></div>
       <div style="margin-bottom:1.5rem;"><label style="font-size:.8rem;color:var(--white2);display:block;margin-bottom:.3rem;">Password</label>
-        <input id="regPass" type="password" placeholder="Min 8 characters" style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;color:var(--white);font-size:.9rem;outline:none;"></div>
+        <div class="password-wrapper">
+          <input id="regPass" type="password" placeholder="Min 8 characters" style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;color:var(--white);font-size:.9rem;outline:none;">
+          <button type="button" class="toggle-password" onclick="togglePassword('regPass', this)">👁️</button>
+        </div></div>
       <div id="regError" style="color:#ff6b35;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
       <button id="regBtn" onclick="doRegister()" style="width:100%;background:var(--teal);color:var(--navy);border:none;padding:.9rem;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:.95rem;cursor:pointer;">Create Account →</button>
       <p style="text-align:center;margin-top:1rem;font-size:.8rem;color:var(--muted);">Have an account? <a href="#" onclick="switchTab('login');return false;" style="color:var(--teal);">Log in</a></p>
@@ -1095,6 +1122,17 @@ function switchPayTab(tab) {
 }
 
 // ─── AUTH ACTIONS ────────────────────────────────────────
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPass').value;
