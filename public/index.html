@@ -269,11 +269,27 @@ footer { background: var(--navy2); border-top: 1px solid var(--border); padding:
 
 /* ADMIN */
 #adminPanel { display: none; background: var(--navy2); border-top: 1px solid var(--border); }
-#adminPanel .admin-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1.5rem; }
-#adminPanel textarea, #adminPanel input { width: 100%; background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: .7rem .9rem; color: var(--white); font-size: .85rem; }
-#adminPanel button { width: fit-content; padding: .6rem 1.2rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--white2); cursor: pointer; }
-#adminPanel button:hover { border-color: var(--teal); color: var(--teal); }
-#adminOutput { background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; max-height: 320px; overflow: auto; font-size: .75rem; }
+.adm-tab { padding: .55rem 1.1rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--white2); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: .8rem; transition: all .2s; }
+.adm-tab.active, .adm-tab:hover { background: var(--teal); color: var(--navy); border-color: var(--teal); }
+.adm-panel { display: none; }
+.adm-panel.active { display: block; }
+.adm-load-btn { padding: .65rem 1.4rem; background: transparent; border: 1px solid var(--teal); color: var(--teal); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .85rem; transition: all .2s; }
+.adm-load-btn:hover { background: var(--teal); color: var(--navy); }
+.adm-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.adm-table th { text-align: left; padding: .6rem .75rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+.adm-table td { padding: .65rem .75rem; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--white2); vertical-align: middle; }
+.adm-table tr:hover td { background: rgba(255,255,255,.02); }
+.adm-action { padding: .3rem .7rem; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--white2); cursor: pointer; font-size: .75rem; transition: all .15s; }
+.adm-action:hover { border-color: var(--teal); color: var(--teal); }
+.adm-action.danger:hover { border-color: var(--orange); color: var(--orange); }
+.adm-badge { display: inline-block; padding: .2rem .55rem; border-radius: 4px; font-size: .7rem; font-weight: 700; }
+.adm-form { background: var(--navy3); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.adm-form h4 { margin-bottom: 1rem; color: var(--white); font-size: .95rem; }
+.adm-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+.adm-form input, .adm-form textarea, .adm-form select { width: 100%; background: var(--navy); border: 1px solid var(--border); border-radius: 7px; padding: .65rem .9rem; color: var(--white); font-size: .85rem; outline: none; }
+.adm-form input:focus, .adm-form textarea:focus, .adm-form select:focus { border-color: var(--teal); }
+.adm-submit { background: var(--teal); color: var(--navy); border: none; padding: .65rem 1.4rem; border-radius: 7px; font-weight: 700; font-size: .85rem; cursor: pointer; }
+@media(max-width:640px) { .adm-form-grid { grid-template-columns: 1fr; } }
 .admin-nav { display:none; }
 
 </style>
@@ -801,12 +817,30 @@ footer { background: var(--navy2); border-top: 1px solid var(--border); padding:
   <div class="grid-bg"></div>
   <div class="section-label">Admin</div>
   <h2 class="section-title">Admin <span class="accent">Console</span></h2>
-  <p style="color:var(--white2);max-width:680px;">Only visible to admin accounts. Load stats, contacts, and payments.</p>
-  <div class="admin-grid">
-    <div>
-      <button id="adminLoadBtn">Load Admin Data</button>
+  <p style="color:var(--white2);max-width:680px;margin-bottom:2rem;">Full dashboard — manage courses, blogs, users, messages and payments.</p>
+  <div id="adminTabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem;">
+    <button class="adm-tab active" data-tab="stats"      onclick="adminTab('stats')">📊 Overview</button>
+    <button class="adm-tab"        data-tab="courses"    onclick="adminTab('courses')">📚 Courses</button>
+    <button class="adm-tab"        data-tab="blogs"      onclick="adminTab('blogs')">✍️ Blogs</button>
+    <button class="adm-tab"        data-tab="users"      onclick="adminTab('users')">👥 Users</button>
+    <button class="adm-tab"        data-tab="messages"   onclick="adminTab('messages')">📬 Messages</button>
+    <button class="adm-tab"        data-tab="payments"   onclick="adminTab('payments')">💳 Payments</button>
+    <button class="adm-tab"        data-tab="newsletter" onclick="adminTab('newsletter')">📧 Newsletter</button>
+  </div>
+  <div id="adm-stats"      class="adm-panel active"><div id="admStatsOut"><button class="adm-load-btn" onclick="admLoadStats()">Load Overview</button></div></div>
+  <div id="adm-courses"    class="adm-panel"><div id="admCoursesOut"><button class="adm-load-btn" onclick="admLoadCourses()">Load Courses</button></div></div>
+  <div id="adm-blogs"      class="adm-panel"><div id="admBlogsOut"><button class="adm-load-btn" onclick="admLoadBlogs()">Load Blogs</button></div></div>
+  <div id="adm-users"      class="adm-panel"><div id="admUsersOut"><button class="adm-load-btn" onclick="admLoadUsers()">Load Users</button></div></div>
+  <div id="adm-messages"   class="adm-panel"><div id="admMessagesOut"><button class="adm-load-btn" onclick="admLoadMessages()">Load Messages</button></div></div>
+  <div id="adm-payments"   class="adm-panel"><div id="admPaymentsOut"><button class="adm-load-btn" onclick="admLoadPayments()">Load Payments</button></div></div>
+  <div id="adm-newsletter" class="adm-panel">
+    <div style="max-width:640px;">
+      <h3 style="margin-bottom:1rem;color:var(--white2);">Send Newsletter to All Subscribers</h3>
+      <input id="nlSubject" placeholder="Subject line..." style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;color:var(--white);font-size:.9rem;margin-bottom:.75rem;">
+      <textarea id="nlBody" rows="6" placeholder="HTML or plain text content..." style="width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;color:var(--white);font-size:.9rem;resize:vertical;margin-bottom:.75rem;"></textarea>
+      <button onclick="admSendNewsletter()" style="background:var(--teal);color:var(--navy);border:none;padding:.75rem 1.5rem;border-radius:8px;font-weight:700;cursor:pointer;">Send to All Subscribers →</button>
+      <div id="nlResult" style="margin-top:.75rem;font-size:.85rem;color:var(--teal);"></div>
     </div>
-    <div id="adminOutput">No data loaded.</div>
   </div>
 </section>
 
@@ -934,11 +968,27 @@ footer { background: var(--navy2); border-top: 1px solid var(--border); padding:
 
 /* ADMIN */
 #adminPanel { display: none; background: var(--navy2); border-top: 1px solid var(--border); }
-#adminPanel .admin-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1.5rem; }
-#adminPanel textarea, #adminPanel input { width: 100%; background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: .7rem .9rem; color: var(--white); font-size: .85rem; }
-#adminPanel button { width: fit-content; padding: .6rem 1.2rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--white2); cursor: pointer; }
-#adminPanel button:hover { border-color: var(--teal); color: var(--teal); }
-#adminOutput { background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; max-height: 320px; overflow: auto; font-size: .75rem; }
+.adm-tab { padding: .55rem 1.1rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--white2); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: .8rem; transition: all .2s; }
+.adm-tab.active, .adm-tab:hover { background: var(--teal); color: var(--navy); border-color: var(--teal); }
+.adm-panel { display: none; }
+.adm-panel.active { display: block; }
+.adm-load-btn { padding: .65rem 1.4rem; background: transparent; border: 1px solid var(--teal); color: var(--teal); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .85rem; transition: all .2s; }
+.adm-load-btn:hover { background: var(--teal); color: var(--navy); }
+.adm-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.adm-table th { text-align: left; padding: .6rem .75rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+.adm-table td { padding: .65rem .75rem; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--white2); vertical-align: middle; }
+.adm-table tr:hover td { background: rgba(255,255,255,.02); }
+.adm-action { padding: .3rem .7rem; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--white2); cursor: pointer; font-size: .75rem; transition: all .15s; }
+.adm-action:hover { border-color: var(--teal); color: var(--teal); }
+.adm-action.danger:hover { border-color: var(--orange); color: var(--orange); }
+.adm-badge { display: inline-block; padding: .2rem .55rem; border-radius: 4px; font-size: .7rem; font-weight: 700; }
+.adm-form { background: var(--navy3); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.adm-form h4 { margin-bottom: 1rem; color: var(--white); font-size: .95rem; }
+.adm-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+.adm-form input, .adm-form textarea, .adm-form select { width: 100%; background: var(--navy); border: 1px solid var(--border); border-radius: 7px; padding: .65rem .9rem; color: var(--white); font-size: .85rem; outline: none; }
+.adm-form input:focus, .adm-form textarea:focus, .adm-form select:focus { border-color: var(--teal); }
+.adm-submit { background: var(--teal); color: var(--navy); border: none; padding: .65rem 1.4rem; border-radius: 7px; font-weight: 700; font-size: .85rem; cursor: pointer; }
+@media(max-width:640px) { .adm-form-grid { grid-template-columns: 1fr; } }
 .admin-nav { display:none; }
 
 </style>
@@ -1372,90 +1422,320 @@ document.querySelectorAll('.cat-btn').forEach(btn=>{
 function filterBlog(q){q=q.toLowerCase();document.querySelectorAll('.blog-card').forEach(c=>{const t=c.querySelector('.blog-title').textContent.toLowerCase(),e=c.querySelector('.blog-excerpt').textContent.toLowerCase();c.style.display=(t.includes(q)||e.includes(q))?'':'none';});}
 
 // ─── ADMIN PANEL ─────────────────────────────────────────
-document.getElementById('adminLoadBtn').addEventListener('click', async () => {
-  const out = document.getElementById('adminOutput');
-  out.textContent = 'Loading...';
-  try {
-    const data = await apiCall('/api/admin/stats');
-    if (!data.success) { out.textContent = 'Error: ' + (data.message || 'Not authorised'); return; }
-    const s = data.stats;
-    out.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
-        <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:1.5rem;font-weight:800;color:var(--teal);">${s.totalUsers}</div>
-          <div style="font-size:.75rem;color:var(--muted);">Total Users</div>
-        </div>
-        <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:1.5rem;font-weight:800;color:var(--orange);">${s.totalEnrollments}</div>
-          <div style="font-size:.75rem;color:var(--muted);">Enrollments</div>
-        </div>
-        <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:1.5rem;font-weight:800;color:var(--gold);">KES ${s.totalRevenue.toLocaleString()}</div>
-          <div style="font-size:.75rem;color:var(--muted);">Revenue</div>
-        </div>
-        <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:1.5rem;font-weight:800;color:var(--teal);">${s.activeSubscribers}</div>
-          <div style="font-size:.75rem;color:var(--muted);">Subscribers</div>
-        </div>
-        <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:1.5rem;font-weight:800;color:var(--orange);">${s.unreadMessages}</div>
-          <div style="font-size:.75rem;color:var(--muted);">Unread Messages</div>
-        </div>
-        <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:1.5rem;font-weight:800;color:var(--white);">${s.publishedCourses}</div>
-          <div style="font-size:.75rem;color:var(--muted);">Live Courses</div>
-        </div>
-      </div>
-      <button onclick="loadMessages()" style="background:var(--teal);color:var(--navy);border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;margin-right:.5rem;">View Messages</button>
-      <button onclick="loadPayments()" style="background:var(--orange);color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;">View Payments</button>
-      <div id="adminDetail" style="margin-top:1rem;"></div>
-    `;
-  } catch(e) {
-    out.textContent = 'Error loading admin data. Make sure you are logged in as admin.';
-  }
-});
 
-async function loadMessages() {
-  const detail = document.getElementById('adminDetail');
-  if (!detail) return;
-  detail.textContent = 'Loading messages...';
-  const data = await apiCall('/api/admin/messages');
-  if (!data.success) { detail.textContent = data.message; return; }
-  if (!data.messages.length) { detail.innerHTML = '<p style="color:var(--muted)">No messages yet.</p>'; return; }
-  detail.innerHTML = '<h4 style="margin-bottom:.75rem;color:var(--white2);">Contact Messages</h4>' +
-    data.messages.map(m => `
-      <div style="background:var(--navy);border:1px solid ${m.isRead ? 'var(--border)' : 'var(--teal)'};border-radius:8px;padding:.875rem;margin-bottom:.5rem;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:.25rem;">
-          <strong style="color:var(--white);">${m.name}</strong>
-          <span style="font-size:.72rem;color:var(--muted);">${new Date(m.createdAt).toLocaleDateString()}</span>
-        </div>
-        <div style="font-size:.78rem;color:var(--teal);margin-bottom:.25rem;">${m.subject}</div>
-        <div style="font-size:.82rem;color:var(--white2);">${m.message}</div>
-        <a href="mailto:${m.email}?subject=Re: ${m.subject}" style="font-size:.75rem;color:var(--orange);text-decoration:none;display:inline-block;margin-top:.5rem;">Reply to ${m.email} →</a>
-      </div>
-    `).join('');
+function adminTab(tab) {
+  document.querySelectorAll('.adm-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.adm-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('adm-' + tab).classList.add('active');
+  // Auto-load on first visit
+  const loaders = { stats:'admLoadStats', courses:'admLoadCourses', blogs:'admLoadBlogs',
+                    users:'admLoadUsers', messages:'admLoadMessages', payments:'admLoadPayments' };
+  if (loaders[tab]) window[loaders[tab] + '_done'] || window[loaders[tab]]();
 }
 
-async function loadPayments() {
-  const detail = document.getElementById('adminDetail');
-  if (!detail) return;
-  detail.textContent = 'Loading payments...';
-  const data = await apiCall('/api/admin/payments');
-  if (!data.success) { detail.textContent = data.message; return; }
-  if (!data.payments.length) { detail.innerHTML = '<p style="color:var(--muted)">No payments yet.</p>'; return; }
-  detail.innerHTML = '<h4 style="margin-bottom:.75rem;color:var(--white2);">Recent Payments</h4>' +
-    data.payments.slice(0, 20).map(p => `
-      <div style="background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
-        <div>
-          <div style="font-size:.85rem;color:var(--white);font-weight:500;">${p.user?.name || 'Unknown'}</div>
-          <div style="font-size:.75rem;color:var(--muted);">${p.course?.title || 'Unknown course'} · ${p.method}</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-weight:800;color:${p.status === 'COMPLETED' ? 'var(--teal)' : p.status === 'FAILED' ? 'var(--orange)' : 'var(--gold)'}">KES ${p.amount.toLocaleString()}</div>
-          <div style="font-size:.72rem;color:var(--muted);">${p.status}</div>
-        </div>
+// ── STATS ──
+async function admLoadStats() {
+  window.admLoadStats_done = true;
+  const out = document.getElementById('admStatsOut');
+  out.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  const d = await apiCall('/api/admin/stats');
+  if (!d.success) { out.innerHTML = `<p style="color:var(--orange)">${d.message}</p>`; return; }
+  const s = d.stats;
+  out.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+      ${[['Total Users',s.totalUsers,'var(--teal)'],['Enrollments',s.totalEnrollments,'var(--orange)'],
+         ['Revenue','KES '+s.totalRevenue.toLocaleString(),'var(--gold)'],
+         ['Subscribers',s.activeSubscribers,'var(--teal)'],['Messages',s.unreadMessages,'var(--orange)'],
+         ['Live Courses',s.publishedCourses,'var(--white)']].map(([l,v,c])=>`
+      <div style="background:var(--navy);padding:1rem;border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:1.5rem;font-weight:800;color:${c};">${v}</div>
+        <div style="font-size:.75rem;color:var(--muted);">${l}</div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── COURSES ──
+async function admLoadCourses() {
+  window.admLoadCourses_done = true;
+  const out = document.getElementById('admCoursesOut');
+  out.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  const d = await apiCall('/api/admin/courses');
+  if (!d.success) { out.innerHTML = `<p style="color:var(--orange)">${d.message}</p>`; return; }
+  out.innerHTML = `
+    <div class="adm-form">
+      <h4>➕ Add New Course</h4>
+      <div class="adm-form-grid">
+        <input id="cc-title" placeholder="Title *">
+        <input id="cc-slug"  placeholder="slug-like-this *">
+        <input id="cc-price" placeholder="Price (KES) *" type="number">
+        <input id="cc-orig"  placeholder="Original price (optional)" type="number">
+        <input id="cc-dur"   placeholder="Duration e.g. 12 hrs">
+        <input id="cc-icon"  placeholder="Emoji icon e.g. 📊">
+        <select id="cc-level">
+          <option value="BEGINNER">Beginner</option>
+          <option value="INTERMEDIATE">Intermediate</option>
+          <option value="ADVANCED">Advanced</option>
+        </select>
       </div>
-    `).join('');
+      <textarea id="cc-desc" rows="2" placeholder="Description *" style="margin-bottom:.75rem;"></textarea>
+      <button class="adm-submit" onclick="admCreateCourse()">Create Course</button>
+      <span id="cc-msg" style="margin-left:.75rem;font-size:.82rem;"></span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="adm-table">
+      <thead><tr><th>Course</th><th>Price</th><th>Enrollments</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      ${d.courses.map(c => `
+        <tr>
+          <td>
+            <div style="font-weight:600;color:var(--white);">${c.iconEmoji} ${c.title}</div>
+            <div style="font-size:.72rem;color:var(--muted);">${c.slug}</div>
+          </td>
+          <td>KES ${c.price.toLocaleString()}</td>
+          <td>${c._count.enrollments}</td>
+          <td><span class="adm-badge" style="background:${c.isPublished?'rgba(0,229,200,.15)':'rgba(255,107,53,.15)'};color:${c.isPublished?'var(--teal)':'var(--orange)'};">${c.isPublished?'Live':'Draft'}</span></td>
+          <td style="white-space:nowrap;">
+            <button class="adm-action" onclick="admTogglePublish('${c.id}','${c.title}')">${c.isPublished?'Unpublish':'Publish'}</button>
+            <button class="adm-action" onclick="admEditCourse('${c.id}','${c.title}',${c.price},'${c.slug}')" style="margin-left:.3rem;">Edit</button>
+            <button class="adm-action danger" onclick="admDeleteCourse('${c.id}','${c.title}')" style="margin-left:.3rem;">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+async function admCreateCourse() {
+  const body = {
+    title: document.getElementById('cc-title').value.trim(),
+    slug:  document.getElementById('cc-slug').value.trim(),
+    price: document.getElementById('cc-price').value,
+    origPrice: document.getElementById('cc-orig').value || null,
+    duration: document.getElementById('cc-dur').value.trim(),
+    iconEmoji: document.getElementById('cc-icon').value.trim() || '📊',
+    level: document.getElementById('cc-level').value,
+    description: document.getElementById('cc-desc').value.trim(),
+  };
+  const msg = document.getElementById('cc-msg');
+  if (!body.title || !body.slug || !body.price || !body.description) { msg.style.color='var(--orange)'; msg.textContent='Fill in required fields.'; return; }
+  const d = await apiCall('/api/admin/courses', { method:'POST', body: JSON.stringify(body) });
+  msg.style.color = d.success ? 'var(--teal)' : 'var(--orange)';
+  msg.textContent = d.message;
+  if (d.success) { window.admLoadCourses_done = false; admLoadCourses(); }
+}
+
+async function admTogglePublish(id, title) {
+  if (!confirm(`Toggle publish status for "${title}"?`)) return;
+  const d = await apiCall(`/api/admin/courses/${id}/publish`, { method:'PATCH' });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadCourses_done = false; admLoadCourses(); }
+}
+
+async function admEditCourse(id, title, price, slug) {
+  const newPrice = prompt(`New price for "${title}" (current: ${price}):`, price);
+  if (!newPrice) return;
+  const d = await apiCall(`/api/admin/courses/${id}`, { method:'PATCH', body: JSON.stringify({ price: parseFloat(newPrice) }) });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadCourses_done = false; admLoadCourses(); }
+}
+
+async function admDeleteCourse(id, title) {
+  if (!confirm(`DELETE course "${title}"? This cannot be undone.`)) return;
+  const d = await apiCall(`/api/admin/courses/${id}`, { method:'DELETE' });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadCourses_done = false; admLoadCourses(); }
+}
+
+// ── BLOGS ──
+async function admLoadBlogs() {
+  window.admLoadBlogs_done = true;
+  const out = document.getElementById('admBlogsOut');
+  out.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  const d = await apiCall('/api/admin/blogs');
+  if (!d.success) { out.innerHTML = `<p style="color:var(--orange)">${d.message}</p>`; return; }
+  out.innerHTML = `
+    <div class="adm-form">
+      <h4>✍️ Create New Blog Post</h4>
+      <div class="adm-form-grid">
+        <input id="bc-title"    placeholder="Title *">
+        <input id="bc-slug"     placeholder="url-slug *">
+        <input id="bc-category" placeholder="Category e.g. SQL, Power BI">
+        <input id="bc-readtime" placeholder="Read time e.g. 5 min read">
+        <input id="bc-emoji"    placeholder="Cover emoji e.g. 📊">
+        <label style="display:flex;align-items:center;gap:.5rem;color:var(--white2);font-size:.85rem;">
+          <input type="checkbox" id="bc-publish" style="width:auto;"> Publish immediately
+        </label>
+      </div>
+      <input id="bc-excerpt" placeholder="Short excerpt (shown in listing) *" style="margin-bottom:.75rem;">
+      <textarea id="bc-content" rows="4" placeholder="Full content (HTML allowed) *" style="margin-bottom:.75rem;"></textarea>
+      <button class="adm-submit" onclick="admCreateBlog()">Create Post</button>
+      <span id="bc-msg" style="margin-left:.75rem;font-size:.82rem;"></span>
+    </div>
+    ${d.blogs.length === 0 ? '<p style="color:var(--muted)">No blog posts yet. Create one above.</p>' : `
+    <div style="overflow-x:auto;">
+    <table class="adm-table">
+      <thead><tr><th>Post</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      ${d.blogs.map(b => `
+        <tr>
+          <td>
+            <div style="font-weight:600;color:var(--white);">${b.coverEmoji} ${b.title}</div>
+            <div style="font-size:.72rem;color:var(--muted);">${b.slug} · ${b.readTime}</div>
+          </td>
+          <td>${b.category}</td>
+          <td><span class="adm-badge" style="background:${b.isPublished?'rgba(0,229,200,.15)':'rgba(255,107,53,.15)'};color:${b.isPublished?'var(--teal)':'var(--orange)'};">${b.isPublished?'Published':'Draft'}</span></td>
+          <td style="white-space:nowrap;">
+            <button class="adm-action" onclick="admToggleBlog('${b.id}',${b.isPublished})">${b.isPublished?'Unpublish':'Publish'}</button>
+            <button class="adm-action danger" onclick="admDeleteBlog('${b.id}','${b.title}')" style="margin-left:.3rem;">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`}`;
+}
+
+async function admCreateBlog() {
+  const body = {
+    title:     document.getElementById('bc-title').value.trim(),
+    slug:      document.getElementById('bc-slug').value.trim(),
+    excerpt:   document.getElementById('bc-excerpt').value.trim(),
+    content:   document.getElementById('bc-content').value.trim(),
+    category:  document.getElementById('bc-category').value.trim() || 'Data Analytics',
+    readTime:  document.getElementById('bc-readtime').value.trim() || '5 min read',
+    coverEmoji:document.getElementById('bc-emoji').value.trim() || '📊',
+    isPublished: document.getElementById('bc-publish').checked,
+  };
+  const msg = document.getElementById('bc-msg');
+  if (!body.title || !body.slug || !body.excerpt || !body.content) { msg.style.color='var(--orange)'; msg.textContent='Fill in required fields.'; return; }
+  const d = await apiCall('/api/admin/blogs', { method:'POST', body: JSON.stringify(body) });
+  msg.style.color = d.success ? 'var(--teal)' : 'var(--orange)';
+  msg.textContent = d.message;
+  if (d.success) { window.admLoadBlogs_done = false; admLoadBlogs(); }
+}
+
+async function admToggleBlog(id, current) {
+  const d = await apiCall(`/api/admin/blogs/${id}`, { method:'PATCH', body: JSON.stringify({ isPublished: !current }) });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadBlogs_done = false; admLoadBlogs(); }
+}
+
+async function admDeleteBlog(id, title) {
+  if (!confirm(`DELETE blog post "${title}"?`)) return;
+  const d = await apiCall(`/api/admin/blogs/${id}`, { method:'DELETE' });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadBlogs_done = false; admLoadBlogs(); }
+}
+
+// ── USERS ──
+async function admLoadUsers() {
+  window.admLoadUsers_done = true;
+  const out = document.getElementById('admUsersOut');
+  out.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  const d = await apiCall('/api/admin/users');
+  if (!d.success) { out.innerHTML = `<p style="color:var(--orange)">${d.message}</p>`; return; }
+  out.innerHTML = `
+    <div style="overflow-x:auto;">
+    <table class="adm-table">
+      <thead><tr><th>User</th><th>Role</th><th>Courses</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>
+      ${d.users.map(u => `
+        <tr>
+          <td>
+            <div style="font-weight:600;color:var(--white);">${u.name}</div>
+            <div style="font-size:.72rem;color:var(--muted);">${u.email}</div>
+          </td>
+          <td><span class="adm-badge" style="background:${u.role==='ADMIN'?'rgba(255,209,102,.15)':'rgba(0,229,200,.1)'};color:${u.role==='ADMIN'?'var(--gold)':'var(--white2)'};">${u.role}</span></td>
+          <td>${u._count.enrollments}</td>
+          <td style="font-size:.78rem;">${new Date(u.createdAt).toLocaleDateString()}</td>
+          <td style="white-space:nowrap;">
+            <button class="adm-action" onclick="admChangeRole('${u.id}','${u.name}','${u.role}')">${u.role==='ADMIN'?'Make Student':'Make Admin'}</button>
+            <button class="adm-action danger" onclick="admDeleteUser('${u.id}','${u.name}')" style="margin-left:.3rem;">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+async function admChangeRole(id, name, currentRole) {
+  const newRole = currentRole === 'ADMIN' ? 'STUDENT' : 'ADMIN';
+  if (!confirm(`Make "${name}" a ${newRole}?`)) return;
+  const d = await apiCall(`/api/admin/users/${id}/role`, { method:'PATCH', body: JSON.stringify({ role: newRole }) });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadUsers_done = false; admLoadUsers(); }
+}
+
+async function admDeleteUser(id, name) {
+  if (!confirm(`DELETE user "${name}"? This removes all their data.`)) return;
+  const d = await apiCall(`/api/admin/users/${id}`, { method:'DELETE' });
+  showToast(d.message, d.success ? 'success' : 'error');
+  if (d.success) { window.admLoadUsers_done = false; admLoadUsers(); }
+}
+
+// ── MESSAGES ──
+async function admLoadMessages() {
+  window.admLoadMessages_done = true;
+  const out = document.getElementById('admMessagesOut');
+  out.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  const d = await apiCall('/api/admin/messages');
+  if (!d.success) { out.innerHTML = `<p style="color:var(--orange)">${d.message}</p>`; return; }
+  if (!d.messages.length) { out.innerHTML = '<p style="color:var(--muted)">No messages yet.</p>'; return; }
+  out.innerHTML = d.messages.map(m => `
+    <div style="background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:.75rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem;">
+        <div>
+          <span style="font-weight:700;color:var(--white);">${m.name}</span>
+          <span style="font-size:.78rem;color:var(--muted);margin-left:.5rem;">${m.email}</span>
+        </div>
+        <span style="font-size:.72rem;color:var(--muted);">${new Date(m.createdAt).toLocaleString()}</span>
+      </div>
+      <div style="font-size:.82rem;color:var(--teal);margin-bottom:.4rem;font-weight:600;">${m.subject}</div>
+      <div style="font-size:.85rem;color:var(--white2);line-height:1.6;">${m.message}</div>
+      <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject)}" style="display:inline-block;margin-top:.6rem;font-size:.78rem;color:var(--orange);text-decoration:none;font-weight:600;">Reply to ${m.email} →</a>
+    </div>`).join('');
+}
+
+// ── PAYMENTS ──
+async function admLoadPayments() {
+  window.admLoadPayments_done = true;
+  const out = document.getElementById('admPaymentsOut');
+  out.innerHTML = '<p style="color:var(--muted)">Loading...</p>';
+  const d = await apiCall('/api/admin/payments');
+  if (!d.success) { out.innerHTML = `<p style="color:var(--orange)">${d.message}</p>`; return; }
+  if (!d.payments.length) { out.innerHTML = '<p style="color:var(--muted)">No payments yet.</p>'; return; }
+  out.innerHTML = `
+    <div style="overflow-x:auto;">
+    <table class="adm-table">
+      <thead><tr><th>User</th><th>Course</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+      ${d.payments.map(p => `
+        <tr>
+          <td>
+            <div style="color:var(--white);font-weight:500;">${p.user?.name||'Unknown'}</div>
+            <div style="font-size:.72rem;color:var(--muted);">${p.user?.email||''}</div>
+          </td>
+          <td style="font-size:.82rem;">${p.course?.title||'Unknown'}</td>
+          <td><span class="adm-badge" style="background:rgba(167,139,250,.15);color:#a78bfa;">${p.method}</span></td>
+          <td style="font-weight:700;color:var(--white);">KES ${p.amount.toLocaleString()}</td>
+          <td><span class="adm-badge" style="background:${p.status==='COMPLETED'?'rgba(0,229,200,.15)':p.status==='FAILED'?'rgba(255,107,53,.15)':'rgba(255,209,102,.15)'};color:${p.status==='COMPLETED'?'var(--teal)':p.status==='FAILED'?'var(--orange)':'var(--gold)'};">${p.status}</span></td>
+          <td style="font-size:.75rem;color:var(--muted);">${new Date(p.createdAt).toLocaleDateString()}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+// ── NEWSLETTER ──
+async function admSendNewsletter() {
+  const subject = document.getElementById('nlSubject').value.trim();
+  const html    = document.getElementById('nlBody').value.trim();
+  const result  = document.getElementById('nlResult');
+  if (!subject || !html) { result.style.color='var(--orange)'; result.textContent='Both subject and content are required.'; return; }
+  if (!confirm(`Send newsletter "${subject}" to all active subscribers?`)) return;
+  result.style.color='var(--muted)'; result.textContent='Sending...';
+  const d = await apiCall('/api/admin/newsletter/send', { method:'POST', body: JSON.stringify({ subject, html }) });
+  result.style.color = d.success ? 'var(--teal)' : 'var(--orange)';
+  result.textContent = d.message;
 }
 
 // ─── INIT ────────────────────────────────────────────────
